@@ -17,6 +17,7 @@ import (
 	"net/url"
 )
 
+//Book : Book is structure for holding a record of the book.
 type Book struct {
 	PK             int
 	Title          string
@@ -24,10 +25,12 @@ type Book struct {
 	Classification string
 }
 
+//Page : Page is a slice of Book
 type Page struct {
 	Books []Book
 }
 
+//SearchResult : SearchResult is a structure for holding xml data.
 type SearchResult struct {
 	Title  string `xml:"title,attr"`
 	Author string `xml:"author,attr"`
@@ -128,10 +131,12 @@ func main() {
 	fmt.Println(http.ListenAndServe(":8080", nil))
 }
 
+//ClassifySearchResponse : ClassifySearchResponse is a slice of the search results.
 type ClassifySearchResponse struct {
 	Results []SearchResult `xml:"works>work"`
 }
 
+//ClassifyBookResponse : ClassifyBookResponse is a structure for holding the xml of BookData.
 type ClassifyBookResponse struct {
 	BookData struct {
 		Title  string `xml:"title,attr"`
