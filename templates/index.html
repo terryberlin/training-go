@@ -1,0 +1,115 @@
+<html>
+  <head>
+    <style>
+      #search-results tr:hover {
+        background-color: lightgrey;
+        cursor: pointer;
+      }
+      #page-switcher {
+          width: 100%;
+          text-align: center;
+      }
+      #page-switcher button {
+          font-size: 24px;
+          font-weight: bold;
+          margin: 1em
+          padding: .3em;
+      }
+      #search-page {
+          display: none;
+      }
+    </style>
+  
+  <body>
+    <div id="#page-switcher">
+        <button id="view-library" type="button" onclick="showViewPage()">View Library</button>
+        <button id="add-books" type="button" onclick="showSearchPage()">Add Books</button>
+    </div>
+
+    <div id="#search-page">
+        <form id="search-form" onsubmit="return false">
+            <input name="search" />
+            <input type="submit" value="Search" onclick="submitSearch()" />
+        </form>
+
+        <table width="100%">
+            <thead>
+                <tr style="text-align: left;">
+                <th width="40%">Title</th>
+                <th width="30%">Author</th>
+                <th width="10%">Year</th>
+                <th width="20%">ID</th>
+                </tr>
+            </thead>
+            <tbody id="search-results"></tbody>
+        </table>
+    </div>
+
+    <div id="#view-page">
+        <table width="100%">
+            <thead> 
+                <tr style="text.align: left;">
+                    <th width="45%"> Title </th>
+                    <th width="35%"> Author </th>
+                    <th width="20%"> Classification </th>
+                </tr>
+            </thead>
+            <tbody id="#view-results">
+                {{range .Books}}
+                <tr>
+                    <td> {{.Title}}</td>
+                    <td> {{.Author}}</td>
+                    <td> {{.Classification}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+    </div>
+  </body>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+    <script type="text/javascript">  
+      function showSearchPage() {
+        $("#search-page").show();
+        $("#view-page").hide();
+      }
+
+      function showViewPage() {
+          $("#search-page").hide();
+          $("#view-page").show();
+      }
+
+      function submitSearch() {
+        $.ajax({
+          url: "/search",
+          method: "POST",
+          data: $("#search-form").serialize(),
+          success: function(rawData) {
+            var parsed = JSON.parse(rawData);
+            if (!parsed) return;
+
+            var searchResults = $("#search-results");
+            searchResults.empty();
+
+            parsed.forEach(function(result) {
+              var row = $("<tr><td>" + result.Title + "</td><td>" + result.Author + "</td><td>" + result.Year +  "</td><td>" + result.ID + "</td></tr>");
+              searchResults.append(row);
+              row.on("click", function() {
+                $.ajax({
+                  url: "/books/add?id=" + result.ID,
+                  method: "GET",
+                  success: function(data) {
+                      var book = JSON.parse(data);
+                      if (!book) return;
+                      $("#view-results").append("<tr><td>" + book.Title + "</td><td>" + book.Author + "</td><td>" + book.Classification + "</td></tr>");
+                  }
+                })
+              })
+            });
+          }
+        });
+        return false;
+      }
+    </script>
+
+  </head>
+</html>
